@@ -1,0 +1,6 @@
+id=modmix
+name=Mod mixer test
+version=1
+versionCode=1
+author=lexi
+description=Route usb-headset to the mod

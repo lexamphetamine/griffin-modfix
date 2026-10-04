@@ -1,0 +1,44 @@
+diff --git a/health/HealthService.cpp b/health/HealthService.cpp
+index 53976d4..e525dbe 100644
+--- a/health/HealthService.cpp
++++ b/health/HealthService.cpp
+@@ -28,6 +28,7 @@
+ #include <string>
+ 
+ #include <sys/stat.h>
++#include <unistd.h>
+ 
+ #include "CycleCountBackupRestore.h"
+ #include "LearnedCapacityBackupRestore.h"
+@@ -74,8 +75,30 @@ int cycle_count_backup(int battery_level)
+ 
+ // See : hardware/interfaces/health/2.0/README
+ 
+-void healthd_board_init(struct healthd_config*)
++static void pin(android::String8& field, const char* file) {
++    std::string p = std::string("/sys/class/power_supply/battery/") + file;
++    if (access(p.c_str(), R_OK) == 0) field = android::String8(p.c_str());
++}
++
++// Pin the phone's internal battery so a Moto Mod battery (gb_battery)
++// is never chosen as the primary battery at boot. Without this, booting
++// with a battery-equipped mod attached can report the mod's level, and
++// detaching it reads level 0 and triggers shutdown,battery.
++void healthd_board_init(struct healthd_config* config)
+ {
++    pin(config->batteryStatusPath, "status");
++    pin(config->batteryHealthPath, "health");
++    pin(config->batteryPresentPath, "present");
++    pin(config->batteryCapacityPath, "capacity");
++    pin(config->batteryVoltagePath, "voltage_now");
++    pin(config->batteryTemperaturePath, "temp");
++    pin(config->batteryTechnologyPath, "technology");
++    pin(config->batteryCurrentNowPath, "current_now");
++    pin(config->batteryCurrentAvgPath, "current_avg");
++    pin(config->batteryChargeCounterPath, "charge_counter");
++    pin(config->batteryFullChargePath, "charge_full");
++    pin(config->batteryCycleCountPath, "cycle_count");
++
+     ccBackupRestore.Restore();
+     lcBackupRestore.Restore();
+ }
