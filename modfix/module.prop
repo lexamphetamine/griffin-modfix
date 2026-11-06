@@ -1,6 +1,6 @@
 id=modfix
-name=Mod audio routing test
-version=1
+name=griffin-modfix: Mod audio routing permission
+version=v1.0
 versionCode=1
-author=lexi
-description=Test patch for ModService audio routing
+author=Lexi La Rue Bellamy
+description=Lets com.motorola.modservice register the JBL SoundBoost mod speaker on LineageOS 18.1 (Moto Z griffin). Pair with modmix.

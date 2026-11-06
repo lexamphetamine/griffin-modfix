@@ -1,0 +1,70 @@
+--- a/com/android/server/audio/AudioService.smali
++++ b/com/android/server/audio/AudioService.smali
+@@ -5628,24 +5628,60 @@
+ .end method
+ 
+ .method private enforceModifyAudioRoutingPermission()V
+-    .locals 2
++    .locals 5
+ 
+-    .line 2546
+     iget-object v0, p0, Lcom/android/server/audio/AudioService;->mContext:Landroid/content/Context;
+ 
+     const-string v1, "android.permission.MODIFY_AUDIO_ROUTING"
+ 
+     invoke-virtual {v0, v1}, Landroid/content/Context;->checkCallingOrSelfPermission(Ljava/lang/String;)I
+ 
+-    move-result v0
++    move-result v1
+ 
+-    if-nez v0, :cond_0
++    if-nez v1, :cond_check
+ 
+-    .line 2550
+     return-void
+ 
+-    .line 2548
+-    :cond_0
++    :cond_check
++    invoke-static {}, Landroid/os/Binder;->getCallingUid()I
++
++    move-result v1
++
++    invoke-virtual {v0}, Landroid/content/Context;->getPackageManager()Landroid/content/pm/PackageManager;
++
++    move-result-object v2
++
++    invoke-virtual {v2, v1}, Landroid/content/pm/PackageManager;->getPackagesForUid(I)[Ljava/lang/String;
++
++    move-result-object v2
++
++    if-eqz v2, :cond_deny
++
++    array-length v3, v2
++
++    const/4 v4, 0x0
++
++    :loop
++    if-ge v4, v3, :cond_deny
++
++    aget-object v1, v2, v4
++
++    const-string v0, "com.motorola.modservice"
++
++    invoke-virtual {v0, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
++
++    move-result v1
++
++    if-nez v1, :cond_ok
++
++    add-int/lit8 v4, v4, 0x1
++
++    goto :loop
++
++    :cond_ok
++    return-void
++
++    :cond_deny
+     new-instance v0, Ljava/lang/SecurityException;
+ 
+     const-string v1, "Missing MODIFY_AUDIO_ROUTING permission"
